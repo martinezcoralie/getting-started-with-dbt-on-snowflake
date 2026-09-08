@@ -62,28 +62,28 @@ ALTER USER github_actions_service_user SET DEFAULT_WAREHOUSE = 'tasty_bytes_dbt_
 -- OIDC, you can create the user with a personal access token (PAT) instead.
 -- This method is easier to reuse across repositories but less secure because it relies
 -- on long-lived credentials and requires manual rotation.
--- CREATE USER IF NOT EXISTS github_actions_service_user
---   TYPE = SERVICE
---   COMMENT = 'Service user for GitHub Actions';
+CREATE USER IF NOT EXISTS github_actions_service_user
+   TYPE = SERVICE
+   COMMENT = 'Service user for GitHub Actions';
 
 -- Grant the level of access to your user that can create network, auth policies,
 -- and objects such as DBs and schemas
--- GRANT ROLE ACCOUNTADMIN TO USER github_actions_service_user;
+ GRANT ROLE ACCOUNTADMIN TO USER github_actions_service_user;
 
 -- Setting up databases and schemas to store policies and network rules
--- CREATE DATABASE IF NOT EXISTS github_actions_access_management;
--- CREATE SCHEMA IF NOT EXISTS github_actions_access_management.NETWORKS;
--- CREATE SCHEMA IF NOT EXISTS github_actions_access_management.POLICIES;
+ CREATE DATABASE IF NOT EXISTS github_actions_access_management;
+ CREATE SCHEMA IF NOT EXISTS github_actions_access_management.NETWORKS;
+ CREATE SCHEMA IF NOT EXISTS github_actions_access_management.POLICIES;
 
--- CREATE AUTHENTICATION POLICY github_actions_access_management.POLICIES.github_auth_policy
---   authentication_methods = ('PROGRAMMATIC_ACCESS_TOKEN')
---   pat_policy = (
---     default_expiry_in_days = 15, -- default value
---     max_expiry_in_days = 365, -- default value
---     network_policy_evaluation = ENFORCED_NOT_REQUIRED -- this is needed to ensure you can generate a PAT on Snowsight
---   );
+ CREATE AUTHENTICATION POLICY github_actions_access_management.POLICIES.github_auth_policy
+   authentication_methods = ('PROGRAMMATIC_ACCESS_TOKEN')
+   pat_policy = (
+     default_expiry_in_days = 15, -- default value
+     max_expiry_in_days = 365, -- default value
+     network_policy_evaluation = ENFORCED_NOT_REQUIRED -- this is needed to ensure you can generate a PAT on Snowsight
+   );
 
--- ALTER USER github_actions_service_user SET AUTHENTICATION POLICY github_actions_access_management.POLICIES.github_auth_policy;
+ ALTER USER github_actions_service_user SET AUTHENTICATION POLICY github_actions_access_management.POLICIES.github_auth_policy;
 
 -- Set a default warehouse:
 -- ALTER USER github_actions_service_user SET DEFAULT_WAREHOUSE = 'tasty_bytes_dbt_wh';
